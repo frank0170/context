@@ -1,9 +1,9 @@
 import { Actor, HttpAgent } from '@dfinity/agent';
 import phonebookIdl from '../idls/phonebook.did';
 
-const domainId = window.location.hostname;
-const pathId = window.location.pathname;
-const rawId = window.location.href;
+const domainId: string = window.location.hostname;
+const pathId: string = window.location.pathname;
+const rawId: string = window.location.href;
 
 const canisterId = () => {
   const ids = pathId.split('/');
