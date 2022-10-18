@@ -1,0 +1,9 @@
+{
+  "extends": ["tslint:recommended", "tslint-config-prettier"],
+  "linterOptions": {},
+  "rules": {
+    "variable-name": false,
+    "no-bitwise": false,
+    "adjacent-overload-signatures": false
+  }
+}
