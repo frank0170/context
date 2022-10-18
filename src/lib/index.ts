@@ -16,7 +16,7 @@ const canisterId = () => {
 
 const appId = () => {
   const ids = pathId.split('/');
-  let app = ids[ids.length - 1];
+  let app: string = ids[ids.length - 1];
   return app;
 };
 
@@ -39,7 +39,7 @@ const tokenId = () => {
 };
 
 const isExos = () => {
-  let exosId = false;
+  let exosId: boolean = false;
   if (domainId.includes('exos')) {
     return (exosId = true);
   }
@@ -47,7 +47,7 @@ const isExos = () => {
 };
 
 const isCanister = () => {
-  let canId = false;
+  let canId: boolean = false;
   if (domainId.includes('canister_id')) {
     return (canId = true);
   }
