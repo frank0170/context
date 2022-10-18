@@ -1,17 +1,36 @@
 import { Actor, HttpAgent } from '@dfinity/agent';
 import phonebookIdl from '../idls/phonebook.did';
+import { Principal } from '@dfinity/principal';
 
 const domainId: string = window.location.hostname;
 const pathId: string = window.location.pathname;
 const rawId: string = window.location.href;
 
-const canisterId = () => {
+const canisterId = async () => {
   const ids = pathId.split('/');
-  let canister: string | null = ids[2];
-  if (canister === '-') {
-    return (canister = null);
+  let canisterId = '';
+  try {
+    const subdomain = window.location.hostname.split('.')[0];
+    Principal.fromText(subdomain);
+    return subdomain;
+  } catch (e) {
+    try {
+      Principal.fromText(ids[2]);
+      canisterId = ids[2];
+      return canisterId;
+    } catch (e) {
+      const agent = new HttpAgent({
+        host: 'https://boundary.ic0.app/',
+      });
+      const actor = Actor.createActor(phonebookIdl, {
+        agent: agent,
+        canisterId: 'ngrpb-5qaaa-aaaaj-adz7a-cai',
+      });
+      // @ts-ignore
+      canisterId = (await actor.lookup(ids[2])).toString();
+    }
   }
-  return canister;
+  return canisterId;
 };
 
 const appId = () => {
@@ -22,20 +41,56 @@ const appId = () => {
 
 const collectionId = () => {
   const ids = pathId.split('/');
-  let collection: string | null = ids[3];
+  let collection: any = ids[3];
   if (collection === '-' || collection === ids[ids.length - 1]) {
-    return (collection = null);
+    return (collection = Principal.fromText('ngrpb-5qaaa-aaaaj-adz7a-cai'));
   }
   return collection;
 };
 
+const gatewayId = async () => {
+  const ids = pathId.split('/');
+  let gateway: string | null = null;
+  try {
+    const subdomain = window.location.hostname.split('.')[0];
+    Principal.fromText(subdomain);
+    return subdomain;
+  } catch (e) {
+    try {
+      Principal.fromText(ids[2]);
+      gateway = ids[2];
+      return gateway;
+    } catch (e) {
+      const agent = new HttpAgent({
+        host: 'https://boundary.ic0.app/',
+      });
+      const actor = Actor.createActor(phonebookIdl, {
+        agent: agent,
+        canisterId: 'ngrpb-5qaaa-aaaaj-adz7a-cai',
+      });
+      // @ts-ignore
+      gateway = (await actor.lookup(ids[2])).toString();
+    }
+    if (gateway !== 'ngrpb-5qaaa-aaaaj-adz7a-cai' ) {
+      gateway = null
+    }
+    return gateway
+    }
+};
+
 const tokenId = () => {
   const ids = pathId.split('/');
-  let token: string | null = ids[4];
+  let token: string | null;
   if (ids.includes('collection')) {
-    return (token = null);
+    return (token = '');
   }
-  return token;
+  try {
+    const subdomain = domainId.split('.')[0];
+    Principal.fromText(subdomain);
+    return (token = ids[2]);
+  } catch (e) {
+    return (token = ids[4]);
+  }
 };
 
 const isExos = () => {
@@ -54,19 +109,9 @@ const isCanister = () => {
   return canId;
 };
 
-// const gateway = () => {
-//   const agent = new HttpAgent({
-//     host: 'https://boundary.ic0.app/',
-//   });
-//   const actor = Actor.createActor(phonebookIdl, {
-//     agent: agent,
-//     canisterId: 'ngrpb-5qaaa-aaaaj-adz7a-cai',
-//   });
-// };
-
 export function contextModule() {
   return {
-    gateway_canister: 'null or Principal(ngrpb-5qaaa-aaaaj-adz7a-cai)', // need clarity
+    gateway_canister: gatewayId(), // need clarity
     token_id: tokenId(),
     library_id: canisterId(),
     app_id: collectionId(),
